@@ -9,7 +9,10 @@ def getLabeledData():
     unconvertedData = [[mushroom.strip() for mushroom in line.split(',')] for line in fileLines]
 
     # Convert alpha characters to numeric form
-    numericMushroomFeatureVectors = [(alphaFeatureVector[0], [ord(feature)-ord('a') for feature in alphaFeatureVector[1:]]) for alphaFeatureVector in unconvertedData]
+    alphaToNum = lambda feature: ord(feature) - ord('a')
+    alphaVecToNumVec = lambda alphaFeatureVector: (alphaFeatureVector[0], map(alphaToNum, alphaFeatureVector[1:]))
+
+    numericMushroomFeatureVectors = map(alphaVecToNumVec, unconvertedData)
     return numericMushroomFeatureVectors
 
 
