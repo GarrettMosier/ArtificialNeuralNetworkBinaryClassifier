@@ -23,19 +23,18 @@ def getAccuracy(classifier, mushrooms):
 
 
 def getFoldAccuracy(labeledData, foldCount, mutationRate, crossoverRate, i):
-        chunkSize = len(labeledData) / foldCount
-        trainData = labeledData[0:i*chunkSize] + labeledData[chunkSize * (i+1):len(labeledData)]
-        testData = labeledData[i*chunkSize:chunkSize*(i+1)]
+    chunkSize = len(labeledData) / foldCount
+    trainData = labeledData[0:i*chunkSize] + labeledData[chunkSize * (i+1):len(labeledData)]
+    testData = labeledData[i*chunkSize:chunkSize*(i+1)]
 
-        print "Mutation rate is %.0f%%. Crossover rate is %.0f%%" % (mutationRate*100, crossoverRate*100)
-        classifier = nn.getClassifier(trainData, mutationRate, crossoverRate)
-        return getAccuracy(classifier, testData)
+    print "Mutation rate is %.0f%%. Crossover rate is %.0f%%" % (mutationRate*100, crossoverRate*100)
+    classifier = nn.getClassifier(trainData, mutationRate, crossoverRate)
+    return getAccuracy(classifier, testData)
 
 
 # Uses N fold validation by training and testing on all possible permutations of the N data chunks
 # Retrives statistics about accuracy of classifier for each attempt
 def NFoldValidation(labeledData, foldCount, mutationRate, crossoverRate):
-
     summedAccuracy = sum([getFoldAccuracy(labeledData, foldCount, mutationRate, crossoverRate, i) for i in range(foldCount)])
 
     averageAccuracy = (summedAccuracy / foldCount) * 100
