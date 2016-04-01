@@ -1,22 +1,25 @@
 import math, random
 
+
 # Determines if a neuron fires
 def activate(nodeInput, weights):
     assert len(nodeInput) == len(weights)
-    return 1 if sum([x * y for x, y in zip(nodeInput, weights)]) > 0 else 0
 
-# Mathematical sigmoid function. Used for activation and non-linearity
-def sigmoid(n):
-    return 1 / (1 + math.exp(-n))
+    nodeOutput = sum([x * y for x, y in zip(nodeInput, weights)])
+
+    return 1 if nodeOutput > 0 else 0
+
 
 # Create a three dimensional matrix with first index as layerNo
 # Leaves of the matrix are weights for a given edge in the neural network
 def getInitialWeights(nodesPerLayer):
     return [[[random.random() for j in range(nodesPerLayer[i])] for k in range(nodesPerLayer[i+1] if i != len(nodesPerLayer) - 1  else 1)] for i in range(len(nodesPerLayer))]
 
+
 # Calculates how well a given classifier can predict the label on a data set
 def getAccuracy(trainingData, classifier):
     return sum([1 for label, mushroom in trainingData if label == classifier(mushroom)])
+
 
 # Ranks population weights based on how well the ANN performs
 def getRankedPopulation(trainingData, populationWeights):
@@ -29,6 +32,7 @@ def getRankedPopulation(trainingData, populationWeights):
 
     return [weights for acc, weights in rankedPopulation]
 
+
 # Uses the a combination of steady-state and elitism selection methods
 def updateGeneticWeights(trainingData, populationWeights, populationSize, mutationRate, crossoverRate):
     rankedPopulation = getRankedPopulation(trainingData, populationWeights)
@@ -36,6 +40,7 @@ def updateGeneticWeights(trainingData, populationWeights, populationSize, mutati
     populationWeights = getRankedPopulation(trainingData, populationWeights)
 
     return populationWeights
+
 
 # Creates a classifier with weights for each layer of the neural network
 def makeClassifierWithWeights(layerWeights):
@@ -52,6 +57,7 @@ def makeClassifierWithWeights(layerWeights):
 
     return classifier
 
+# Apply an operation on each applicable weight
 def traverse(weightLevel, operate):
     newWeights = list()
     if type(weightLevel) == list:
@@ -65,7 +71,9 @@ def traverse(weightLevel, operate):
 
     return newWeights
 
-#w1 and w2 must have the same structure
+
+# w1 and w2 must have the same structure
+# Creates a structure with zipped weights at each node as they were in their respective structures
 def zipWeights(w1, w2):
     newWeights = list()
 
@@ -80,14 +88,22 @@ def zipWeights(w1, w2):
 
     return newWeights
 
+
 # Combine two entities on a weight by weight basis
 def crossover(w1, w2, crossoverRate):
-    return traverse(zipWeights(w1, w2), lambda x : x[0] if random.random() > crossoverRate else x[1])
+    pickSideToCross = lambda x : x[0] if random.random() > crossoverRate else x[1]
+    return traverse(zipWeights(w1, w2), pickSideToCross)
+
 
 # Pick a random operator and apply it to mutationRate percent of weights
 def mutate(weights, mutationRate):
+    # Potential ways a weight can mutate
     operatorList = [lambda x, y: x + y, lambda x, y: x * y, lambda x, y: x / y, lambda x, y: x - y]
-    return traverse(weights, lambda x: x if random.random() > mutationRate else operatorList[random.randrange(0, 4)](x, random.randrange(1, 100, 1)))
+
+    potentiallyMutateWeight = lambda x: x if random.random() > mutationRate else operatorList[random.randrange(0, 4)](x, random.randrange(1, 100, 1))
+
+    return traverse(weights, potentiallyMutateWeight)
+
 
 def getNextGeneration(rankedPopulation, mutationRate, crossoverRate):
     outlierSize = 1
@@ -102,18 +118,21 @@ def getNextGeneration(rankedPopulation, mutationRate, crossoverRate):
 
     return nextGen
 
+
 # Uses a three layer neural network to create a classifier
 def getClassifier(trainingData, mutationRate, crossoverRate):
     inputSize = len(trainingData[0][1])
     nodesPerLayer = [inputSize, 1]
 
-    populationSize = 60
+    populationSize = 5
     print "Starting population size is %i" % populationSize
 
     populationWeights = [getInitialWeights(nodesPerLayer) for i in range(populationSize)]
     print "Initial weights for the entire population are ", populationWeights
 
-    for i in range(100):
+    generationCount = 10
+
+    for i in range(generationCount):
         populationWeights = updateGeneticWeights(trainingData, populationWeights, populationSize, mutationRate, crossoverRate)
         assert(len(populationWeights) == populationSize)
 
