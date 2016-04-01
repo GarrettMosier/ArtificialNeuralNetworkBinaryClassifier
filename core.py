@@ -15,9 +15,7 @@ def getLabeledData():
 
 # Returns the percent of the input that was correctly labeled by the classifier
 def getAccuracy(classifier, mushrooms):
-    isCorrectlyClassified = lambda (label, mushroom): label == classifier(mushroom)
-
-    correctlyClassifiedCount = len(filter(isCorrectlyClassified, mushrooms))
+    correctlyClassifiedCount = nn.getCorrectPredictionCount(mushrooms, classifier)
     totalMushroomCount = len(mushrooms)
 
     print "Classified %i mushrooms correctly out of %i mushrooms possible" % (correctlyClassifiedCount, totalMushroomCount)

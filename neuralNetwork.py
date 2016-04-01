@@ -17,14 +17,18 @@ def getInitialWeights(nodesPerLayer):
 
 
 # Calculates how well a given classifier can predict the label on a data set
-def getAccuracy(trainingData, classifier):
-    return sum([1 for label, mushroom in trainingData if label == classifier(mushroom)])
+def getCorrectPredictionCount(trainingData, classifier):
+    isCorrectlyClassified = lambda (label, mushroom): label == classifier(mushroom)
+
+    correctlyClassifiedCount = len(filter(isCorrectlyClassified, trainingData))
+
+    return correctlyClassifiedCount
 
 
 # Ranks population weights based on how well the ANN performs
 def getRankedPopulation(trainingData, populationWeights):
     classifiers = [makeClassifierWithWeights(weights) for weights in populationWeights]
-    accuracies = [getAccuracy(trainingData, classifier) for classifier in classifiers]
+    accuracies = [getCorrectPredictionCount(trainingData, classifier) for classifier in classifiers]
 
     # Put best weights at front
     rankedPopulation = sorted(zip(accuracies, populationWeights), key=lambda t: t[0])
