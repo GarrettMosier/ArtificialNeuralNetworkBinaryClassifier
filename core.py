@@ -36,9 +36,7 @@ def getFoldAccuracy(labeledData, foldCount, mutationRate, crossoverRate, i):
 
 # Uses N fold validation by training and testing on all possible permutations of the N data chunks
 # Retrives statistics about accuracy of classifier for each attempt
-def NFoldValidation(labeledData, foldCount):
-    mutationRate = .05
-    crossoverRate = .6
+def NFoldValidation(labeledData, foldCount, mutationRate, crossoverRate):
 
     summedAccuracy = sum([getFoldAccuracy(labeledData, foldCount, mutationRate, crossoverRate, i) for i in range(foldCount)])
 
@@ -49,6 +47,6 @@ def NFoldValidation(labeledData, foldCount):
 def main():
     labeledData = getLabeledData()
     random.shuffle(labeledData)
-    NFoldValidation(labeledData, 2)
+    NFoldValidation(labeledData, 2, .05, .6)
 
 main()

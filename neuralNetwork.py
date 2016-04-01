@@ -57,7 +57,7 @@ def makeClassifierWithWeights(layerWeights):
 
     return classifier
 
-
+# Apply an operation on each applicable weight
 def traverse(weightLevel, operate):
     newWeights = list()
     if type(weightLevel) == list:
@@ -72,7 +72,8 @@ def traverse(weightLevel, operate):
     return newWeights
 
 
-#w1 and w2 must have the same structure
+# w1 and w2 must have the same structure
+# Creates a structure with zipped weights at each node as they were in their respective structures
 def zipWeights(w1, w2):
     newWeights = list()
 
@@ -87,15 +88,21 @@ def zipWeights(w1, w2):
 
     return newWeights
 
+
 # Combine two entities on a weight by weight basis
 def crossover(w1, w2, crossoverRate):
-    return traverse(zipWeights(w1, w2), lambda x : x[0] if random.random() > crossoverRate else x[1])
+    pickSideToCross = lambda x : x[0] if random.random() > crossoverRate else x[1]
+    return traverse(zipWeights(w1, w2), pickSideToCross)
 
 
 # Pick a random operator and apply it to mutationRate percent of weights
 def mutate(weights, mutationRate):
+    # Potential ways a weight can mutate
     operatorList = [lambda x, y: x + y, lambda x, y: x * y, lambda x, y: x / y, lambda x, y: x - y]
-    return traverse(weights, lambda x: x if random.random() > mutationRate else operatorList[random.randrange(0, 4)](x, random.randrange(1, 100, 1)))
+
+    potentiallyMutateWeight = lambda x: x if random.random() > mutationRate else operatorList[random.randrange(0, 4)](x, random.randrange(1, 100, 1))
+
+    return traverse(weights, potentiallyMutateWeight)
 
 
 def getNextGeneration(rankedPopulation, mutationRate, crossoverRate):
@@ -123,7 +130,9 @@ def getClassifier(trainingData, mutationRate, crossoverRate):
     populationWeights = [getInitialWeights(nodesPerLayer) for i in range(populationSize)]
     print "Initial weights for the entire population are ", populationWeights
 
-    for i in range(10):
+    generationCount = 10
+
+    for i in range(generationCount):
         populationWeights = updateGeneticWeights(trainingData, populationWeights, populationSize, mutationRate, crossoverRate)
         assert(len(populationWeights) == populationSize)
 
